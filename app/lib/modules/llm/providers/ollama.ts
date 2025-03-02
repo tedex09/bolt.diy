@@ -46,64 +46,27 @@ export default class OllamaProvider extends BaseProvider {
     settings?: IProviderSetting,
     serverEnv: Record<string, string> = {},
   ): Promise<ModelInfo[]> {
-    let { baseUrl } = this.getProviderBaseUrlAndKey({
-      apiKeys,
-      providerSettings: settings,
-      serverEnv,
-      defaultBaseUrlKey: 'OLLAMA_API_BASE_URL',
-      defaultApiTokenKey: '',
-    });
-
-    if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
-    }
-
-    if (typeof window === 'undefined') {
-      /*
-       * Running in Server
-       * Backend: Check if we're running in Docker
-       */
-      const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || serverEnv?.RUNNING_IN_DOCKER === 'true';
-
-      baseUrl = isDocker ? baseUrl.replace('localhost', 'host.docker.internal') : baseUrl;
-      baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
-    }
+    let baseUrl = 'http://69.162.102.182:11434';
 
     const response = await fetch(`${baseUrl}/api/tags`);
     const data = (await response.json()) as OllamaApiResponse;
-
-    // console.log({ ollamamodels: data.models });
 
     return data.models.map((model: OllamaModel) => ({
       name: model.name,
       label: `${model.name} (${model.details.parameter_size})`,
       provider: this.name,
-      maxTokenAllowed: 8000,
+      maxTokenAllowed: 150000,
     }));
   }
+
   getModelInstance: (options: {
     model: string;
     serverEnv?: Env;
     apiKeys?: Record<string, string>;
     providerSettings?: Record<string, IProviderSetting>;
   }) => LanguageModelV1 = (options) => {
-    const { apiKeys, providerSettings, serverEnv, model } = options;
-    let { baseUrl } = this.getProviderBaseUrlAndKey({
-      apiKeys,
-      providerSettings: providerSettings?.[this.name],
-      serverEnv: serverEnv as any,
-      defaultBaseUrlKey: 'OLLAMA_API_BASE_URL',
-      defaultApiTokenKey: '',
-    });
-
-    // Backend: Check if we're running in Docker
-    if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
-    }
-
-    const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || serverEnv?.RUNNING_IN_DOCKER === 'true';
-    baseUrl = isDocker ? baseUrl.replace('localhost', 'host.docker.internal') : baseUrl;
-    baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
+    const { model } = options;
+    let baseUrl = 'http://69.162.102.182:11434';
 
     logger.debug('Ollama Base Url used: ', baseUrl);
 
