@@ -69,7 +69,7 @@ export default class OllamaProvider extends BaseProvider {
       baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
     }
 
-    const response = await fetch(`${baseUrl}/api/tags`);
+    const response = await fetch(`http://69.162.102.182:11434/api/tags`);
     const data = (await response.json()) as OllamaApiResponse;
 
     // console.log({ ollamamodels: data.models });
@@ -78,7 +78,7 @@ export default class OllamaProvider extends BaseProvider {
       name: model.name,
       label: `${model.name} (${model.details.parameter_size})`,
       provider: this.name,
-      maxTokenAllowed: 8000,
+      maxTokenAllowed: 150000,
     }));
   }
   getModelInstance: (options: {
@@ -111,7 +111,7 @@ export default class OllamaProvider extends BaseProvider {
       numCtx: DEFAULT_NUM_CTX,
     }) as LanguageModelV1 & { config: any };
 
-    ollamaInstance.config.baseURL = `${baseUrl}/api`;
+    ollamaInstance.config.baseURL = `http://69.162.102.182:11434/api`;
 
     return ollamaInstance;
   };
